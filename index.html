@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جامعة اللوتس بالمنيا | بوابة استعلام أكواد وكارنيهات الطلاب</title>
+  
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 RTL CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Dark Theme CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Background Ambient Glows -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Header Section -->
+  <header class="navbar-custom py-3 border-bottom-glow">
+    <div class="container d-flex justify-content-between align-items-center">
+      
+      <!-- Brand & University Title (بدون لوجو) -->
+      <div class="d-flex align-items-center">
+        <div>
+          <h1 class="h4 mb-0 fw-bold university-title text-gradient">جامعة اللوتس بالمنيا</h1>
+          <small class="text-secondary-glow">Lotus University in Minya - إدارة شؤون الطلاب</small>
+        </div>
+      </div>
+
+      <!-- Navigation: Glowing Firebase Dot & Gear Icon -->
+      <div class="d-flex align-items-center gap-3">
+        <!-- Glowing Green Light (علامة خضراء مضيئة بدون نص) -->
+        <div class="glowing-status-indicator" id="firebaseStatusIndicator" title="متصل بالفيربيس (قاعدة البيانات نشطة)">
+          <span class="pulse-dot-large"></span>
+        </div>
+
+        <!-- Gear Icon Button (رمز الترس فقط) -->
+        <button id="adminGearBtn" class="btn-gear-icon" onclick="promptAdminPassword()" title="لوحة الإدارة">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container my-4 my-md-5">
+
+    <!-- ==================== USER VIEW (استعلام الطالب) ==================== -->
+    <section id="userView" class="view-section active">
+      
+      <!-- Welcome Hero Banner -->
+      <div class="row justify-content-center mb-4">
+        <div class="col-lg-8 text-center">
+          <h2 class="display-6 fw-bold mb-3 text-white">
+            استعلم عن <span class="text-gradient-cyan">كود الطالب وتفاصيل الكارنيه</span>
+          </h2>
+          <p class="text-muted-cyan">
+            أدخل الرقم القومي الخاص بك المكون من 14 رقماً للاطلاع على الكود الجامعي المخصص، والفرقة، وموعد ومكان الاستلام بدقة.
+          </p>
+        </div>
+      </div>
+
+      <!-- Search Box Card -->
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-7 col-md-9">
+          <div class="cyber-card p-4 p-md-4">
+            <form id="searchForm" onsubmit="event.preventDefault(); searchStudent();">
+              <label for="nationalIdInput" class="form-label text-white fw-bold mb-2">
+                <i class="fa-solid fa-id-card text-cyan me-1"></i> الرقم القومي للطالب:
+              </label>
+              
+              <div class="input-group search-input-group mb-0">
+                <span class="input-group-text bg-transparent border-0 text-cyan">
+                  <i class="fa-solid fa-magnifying-glass fs-5"></i>
+                </span>
+                <input 
+                  type="text" 
+                  id="nationalIdInput" 
+                  class="form-control cyber-input" 
+                  placeholder="أدخل 14 رقماً (الرقم القومي المدون بالبطاقة أو شهادة الميلاد)..." 
+                  maxlength="14"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                >
+                <button type="submit" class="btn btn-search-cyber px-4" id="searchSubmitBtn">
+                  <span class="spinner-border spinner-border-sm me-2 d-none" id="searchSpinner"></span>
+                  <span id="searchBtnText"><i class="fa-solid fa-arrow-left me-1"></i> استعلام</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Result Display Section -->
+      <div id="searchResultContainer" class="row justify-content-center d-none">
+        <div class="col-lg-8 col-md-10">
+          
+          <!-- Student Official Card -->
+          <div class="student-karyaneh-card p-4 p-md-5 position-relative">
+            
+            <!-- Watermark / Background Crest -->
+            <div class="card-watermark">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <!-- Card Header -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4 border-secondary-subtle flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-3">
+                <div class="card-crest-icon">
+                  <i class="fa-solid fa-university text-cyan"></i>
+                </div>
+                <div>
+                  <h4 class="mb-0 fw-bold text-white">جامعة اللوتس بالمنيا</h4>
+                  <small class="text-secondary">Lotus University in Minya - إدارة شؤون الطلاب</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Student Code Highlight Box (الجزء الثابت والجزء الملون مع السهم المتحرك) -->
+            <div class="code-spotlight-wrapper my-4 p-4 rounded-4 position-relative">
+              
+              <!-- Title aligned to the side with generous separation -->
+              <div class="text-start pb-3 mb-5 border-bottom border-secondary-subtle">
+                <span class="code-box-title text-cyan fw-bold fs-6">
+                  <i class="fa-solid fa-key me-2"></i> كود الطالب الأكاديمي للكارنيه
+                </span>
+              </div>
+
+              <!-- Split Code Display (مع مساحة علوية واسعة للسهم المتحرك) -->
+              <div class="d-flex justify-content-center align-items-center flex-wrap gap-2 mt-5 pt-3 mb-4" id="splitCodeDisplay">
+                
+                <!-- Highlighted Special Part with Animated Arrow (الكود المميز مع السهم المتحرك) -->
+                <div class="code-special-container position-relative" id="codeSpecialContainer">
+                  
+                  <!-- Animated Indicator Arrow pointing to this distinct small part -->
+                  <div class="animated-arrow-pointer">
+                    <div class="arrow-badge-pill">
+                      <i class="fa-solid fa-arrow-down-long bounce-arrow me-1"></i> 
+                      <span id="arrowBadgeLabel">هذا هو الكود</span>
+                    </div>
+                  </div>
+
+                  <!-- The Highlighted Number/Letters -->
+                  <div class="code-highlighted-badge" id="codeHighlightBadge" title="كود الطالب">
+                    <span class="code-highlighted-val" id="codeDynamicPart">0000</span>
+                  </div>
+
+                </div>
+
+                <!-- Separator -->
+                <span class="code-dash-separator">-</span>
+
+                <!-- Fixed Part (باقي الكود) -->
+                <div class="code-fixed-badge" title="الجزء الثابت">
+                  <span class="code-fixed-val" id="codeFixedPart">LUM-</span>
+                </div>
+
+              </div>
+
+              <div class="text-center mt-3">
+                <small class="text-muted-cyan">
+                  <i class="fa-solid fa-info-circle me-1"></i> برجاء حفظ هذا الكود الملون لتقديمه عند استلام الكارنيه
+                </small>
+              </div>
+
+            </div>
+
+            <!-- Student Information Frame (إطار ملون مميز ومضيء لباقي الداتا) -->
+            <div class="student-info-custom-frame p-3 p-md-4 rounded-4 mt-4">
+              <div class="d-flex align-items-center justify-content-between border-bottom border-secondary-subtle pb-2 mb-3 flex-wrap gap-2">
+                <span class="badge bg-cyber-gradient px-3 py-2 rounded-pill fw-bold">
+                  <i class="fa-solid fa-address-card me-1"></i> تفاصيل وبيانات الطالب
+                </span>
+                <span class="text-secondary small">
+                  <i class="fa-solid fa-check-double text-cyan me-1"></i> إدارة شؤون الطلاب - جامعة اللوتس
+                </span>
+              </div>
+
+              <!-- Student Information Grid -->
+              <div class="row g-3">
+                
+                <!-- Name -->
+                <div class="col-md-12">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-user text-cyan me-2"></i>اسم الطالب:</span>
+                    <span class="info-field-value text-white fw-bold fs-5" id="resStudentName">--</span>
+                  </div>
+                </div>
+
+                <!-- National ID -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-id-badge text-cyan me-2"></i>الرقم القومي:</span>
+                    <span class="info-field-value text-info font-monospace fs-5" id="resNationalId">--</span>
+                  </div>
+                </div>
+
+                <!-- Grade / Year -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-layer-group text-cyan me-2"></i>الفرقة الدراسية:</span>
+                    <span class="info-field-value text-warning fw-bold" id="resGrade">--</span>
+                  </div>
+                </div>
+
+                <!-- Day -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-calendar-day text-cyan me-2"></i>اليوم المقرر:</span>
+                    <span class="info-field-value text-success fw-bold" id="resDay">--</span>
+                  </div>
+                </div>
+
+                <!-- Location -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-location-dot text-danger me-2"></i>المكان / القاعة:</span>
+                    <span class="info-field-value text-white fw-bold" id="resLocation">--</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Action Button (استعلام آخر فقط باللون الأبيض بولد) -->
+            <div class="text-center mt-4 pt-3 border-top border-secondary-subtle">
+              <button class="btn btn-reset-search text-white fw-bold rounded-pill px-4 py-2" onclick="resetSearch()">
+                <i class="fa-solid fa-rotate-left me-2 text-white"></i> <span>استعلام عن طالب آخر</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- No Result Found Notification -->
+      <div id="noResultContainer" class="row justify-content-center d-none">
+        <div class="col-lg-6 col-md-8">
+          <div class="alert alert-cyber-danger p-4 text-center rounded-4">
+            <i class="fa-solid fa-triangle-exclamation fs-1 mb-3 text-warning"></i>
+            <h4 class="fw-bold mb-2">عفواً، لم يتم العثور على بيانات لهذا الرقم القومي</h4>
+            <p class="mb-3 text-secondary">
+              تأكد من إدخال الـ 14 رقماً باللغة الإنجليزية أو العربية بشكل صحيح، أو راجع إدارة شؤون الطلاب بجامعة اللوتس.
+            </p>
+            <button class="btn btn-outline-warning rounded-pill px-4" onclick="resetSearch()">
+              <i class="fa-solid fa-keyboard me-1"></i> المحاولة مجدداً
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== ADMIN VIEW (لوحة الإدارة ورفع الإكسيل) ==================== -->
+    <section id="adminView" class="view-section d-none">
+      
+      <!-- Admin Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle flex-wrap gap-3">
+        <div>
+          <h2 class="fw-bold text-white mb-1">
+            <i class="fa-solid fa-user-shield text-cyan me-2"></i> لوحة الإدارة وشؤون الطلاب
+          </h2>
+          <small class="text-secondary">رفع ملفات الإكسيل ومزامنة بيانات الطلاب فورياً مع Firebase</small>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="switchToUserView()">
+            <i class="fa-solid fa-arrow-right me-1"></i> الرجوع لواجهة الطلاب
+          </button>
+          <button class="btn btn-danger btn-sm rounded-pill px-3" onclick="adminLogout()">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> خروج
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin Top Metrics Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+          <div class="metric-card">
+            <div class="metric-icon bg-primary-subtle text-primary"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <div class="metric-val" id="adminTotalStudentsCount">0</div>
+              <div class="metric-label">إجمالي الطلاب</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="metric-card">
+            <div class="metric-icon bg-success-subtle text-success"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div>
+              <div class="metric-val" id="adminFirebaseStatus">نشط</div>
+              <div class="metric-label">حالة الفيربيس</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="metric-card">
+            <div class="metric-icon bg-warning-subtle text-warning"><i class="fa-solid fa-file-excel"></i></div>
+            <div>
+              <div class="metric-val" id="adminLoadedExcelRows">0</div>
+              <div class="metric-label">سجلات إكسيل المحملة</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="metric-card">
+            <div class="metric-icon bg-info-subtle text-info"><i class="fa-solid fa-barcode"></i></div>
+            <div>
+              <div class="metric-val" id="adminSplitDigitsPreview">4</div>
+              <div class="metric-label">أرقام الكود المميز</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel Upload & Settings Card -->
+      <div class="row g-4 mb-4">
+        
+        <!-- Upload Section -->
+        <div class="col-lg-8">
+          <div class="cyber-card p-4 h-100">
+            <h4 class="text-white fw-bold mb-3 d-flex align-items-center justify-content-between">
+              <span><i class="fa-solid fa-file-excel text-success me-2"></i> رفع ملف بيانات الطلاب (Excel .xlsx / .xls)</span>
+              <a href="#" class="btn btn-sm btn-outline-info rounded-pill" onclick="downloadExcelTemplate()">
+                <i class="fa-solid fa-download me-1"></i> تحميل نموذج إكسيل تجريبي
+              </a>
+            </h4>
+
+            <!-- Drag & Drop Zone -->
+            <div class="excel-drop-zone p-4 text-center rounded-3 mb-3" id="dropZone">
+              <i class="fa-solid fa-cloud-arrow-up display-5 text-cyan mb-2"></i>
+              <h5 class="text-white fw-bold">اسحب وأفلت ملف الإكسيل هنا</h5>
+              <p class="text-secondary small mb-3">أو اضغط لاختيار الملف من جهازك (يدعم صيغ .xlsx, .xls, .csv)</p>
+              <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="d-none">
+              <button class="btn btn-outline-cyan rounded-pill px-4" onclick="document.getElementById('excelFileInput').click()">
+                <i class="fa-solid fa-folder-open me-1"></i> تصفح الملفات
+              </button>
+            </div>
+
+            <!-- Selected File Info & Mapping Bar -->
+            <div id="fileSelectedBar" class="d-none alert alert-dark border border-secondary-subtle p-3 rounded-3 d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <div>
+                <i class="fa-solid fa-file-circle-check text-success fs-5 me-2"></i>
+                <strong class="text-white" id="selectedFileName">students.xlsx</strong>
+                <span class="badge bg-secondary ms-2" id="selectedFileSize">0 KB</span>
+                <span class="badge bg-primary ms-2" id="selectedRowCount">0 صف</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-success-glow btn-sm rounded-pill px-3" id="uploadToFirebaseBtn" onclick="uploadParsedDataToFirebase()">
+                  <i class="fa-solid fa-cloud-arrow-up me-1"></i> حفظ ومزامنة بالفيربيس
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-2" onclick="clearSelectedExcel()">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Progress Bar for Upload -->
+            <div id="uploadProgressWrapper" class="d-none mb-3">
+              <div class="d-flex justify-content-between text-secondary small mb-1">
+                <span>جاري حفظ السجلات بالفيربيس...</span>
+                <span id="uploadProgressPercent">0%</span>
+              </div>
+              <div class="progress cyber-progress">
+                <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-cyan" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="small text-secondary">
+              <i class="fa-solid fa-circle-info text-cyan me-1"></i>
+              <strong>الأعمدة المطلوبة في الإكسيل:</strong> 
+              الرقم القومي (National ID) - الاسم (Name) - الكود (Code) - الفرقة (Grade) - اليوم (Day) - المكان (Location).
+              (يقوم النظام بالتعرف على أسماء الأعمدة تلقائياً).
+            </div>
+
+          </div>
+        </div>
+
+        <!-- System Settings Card -->
+        <div class="col-lg-4">
+          <div class="cyber-card p-4 h-100">
+            <h5 class="text-white fw-bold mb-3">
+              <i class="fa-solid fa-sliders text-cyan me-2"></i> تخصيص كود الطالب والسهم
+            </h5>
+            
+            <!-- Code Splitting Setting -->
+            <div class="mb-3">
+              <label class="form-label text-secondary small fw-bold">طريقة فصل الكود المميز:</label>
+              <select id="splitModeSelect" class="form-select cyber-select" onchange="updateSplitSettings()">
+                <option value="last4" selected>آخر 4 أرقام من الكود (الموصى به)</option>
+                <option value="last3">آخر 3 أرقام من الكود</option>
+                <option value="last5">آخر 5 أرقام من الكود</option>
+                <option value="delimiter">الفاصل (-) أو (/) تلقائياً</option>
+                <option value="all">الكود بالكامل مميز</option>
+              </select>
+            </div>
+
+            <!-- Prefix Display Setting -->
+            <div class="mb-3">
+              <label class="form-label text-secondary small fw-bold">بادئة الجزء الثابت الافتراضية (إذا لم تكن بالكود):</label>
+              <input type="text" id="defaultPrefixInput" class="form-control cyber-input" value="LUM-" placeholder="مثلاً: LUM-" oninput="updateSplitSettings()">
+            </div>
+
+            <!-- Arrow Message Text -->
+            <div class="mb-3">
+              <label class="form-label text-secondary small fw-bold">نص إشارة السهم المتحرك:</label>
+              <input type="text" id="arrowCustomTextInput" class="form-control cyber-input" value="هذا هو الكود" placeholder="نص السهم..." oninput="updateSplitSettings()">
+            </div>
+
+            <!-- Live Preview of Code Split -->
+            <div class="p-3 rounded-3 bg-darker-card border border-secondary-subtle text-center">
+              <small class="text-secondary d-block mb-1">معاينة مباشرة لشكل الكود:</small>
+              <div class="d-inline-flex align-items-center gap-1 p-2 bg-dark rounded-3 border border-secondary">
+                <span class="text-cyan fw-bold font-monospace bg-cyan-subtle px-2 py-1 rounded" id="previewDynamicPart">8542</span>
+                <span class="text-secondary font-monospace" id="previewFixedPart">LUM-</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Excel Preview / Firebase Students Table -->
+      <div class="cyber-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h4 class="text-white fw-bold mb-0">
+              <i class="fa-solid fa-table-list text-cyan me-2"></i> سجلات الطلاب في قاعدة البيانات
+            </h4>
+            <small class="text-secondary" id="tableSubtitle">عرض وتصفية الطلاب المسجلين</small>
+          </div>
+          <div class="d-flex gap-2">
+            <input type="text" id="adminTableSearchInput" class="form-control cyber-input form-control-sm" placeholder="بحث باسم أو رقم قومي..." oninput="filterAdminTable()">
+            <button class="btn btn-outline-success btn-sm rounded-pill px-3 text-nowrap" onclick="exportCurrentTableToExcel()">
+              <i class="fa-solid fa-file-export me-1"></i> تصدير إكسيل
+            </button>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 text-nowrap" onclick="confirmClearAllDatabase()">
+              <i class="fa-solid fa-trash-can me-1"></i> مسح الكل
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive cyber-table-wrapper">
+          <table class="table table-dark table-hover align-middle mb-0" id="studentsTable">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">الرقم القومي</th>
+                <th scope="col">اسم الطالب</th>
+                <th scope="col">الكود الكامل</th>
+                <th scope="col">الكود المقسم</th>
+                <th scope="col">الفرقة</th>
+                <th scope="col">اليوم</th>
+                <th scope="col">المكان</th>
+                <th scope="col" class="text-center">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+              <tr>
+                <td colspan="9" class="text-center py-4 text-secondary">
+                  <i class="fa-solid fa-inbox fs-3 d-block mb-2 text-muted"></i>
+                  لا توجد بيانات حالياً. قم برفع ملف إكسيل لبدء ملء السجلات.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer-custom py-4 mt-auto border-top-glow">
+    <div class="container text-center">
+      <div class="designer-badge d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill">
+        <i class="fa-solid fa-crown text-warning fs-5"></i>
+        <span class="fw-bold text-white fs-6">تصميم مهندس / بولس سمير</span>
+        <span class="badge bg-cyan-subtle text-cyan rounded-pill px-3 py-2">مدير شئون الطلاب</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== ADMIN PIN LOGIN MODAL ==================== -->
+  <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content cyber-modal">
+        <div class="modal-header border-bottom border-secondary-subtle">
+          <h5 class="modal-title fw-bold text-white">
+            <i class="fa-solid fa-lock text-cyan me-2"></i> تسجيل الدخول للوحة الإدارة
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-secondary small mb-3">
+            هذه المنطقة مخصصة لإدارة شؤون الطلاب فقط لرفع وتعديل بيانات إكسيل. برجاء إدخال الرقم السري.
+          </p>
+          <form id="adminLoginForm" onsubmit="event.preventDefault(); verifyAdminPin();">
+            <div class="mb-3">
+              <label for="adminPinInput" class="form-label text-white small fw-bold">الرقم السري (PIN / Password):</label>
+              <input 
+                type="password" 
+                id="adminPinInput" 
+                class="form-control cyber-input text-center fs-4 font-monospace letter-spacing-2" 
+                placeholder="••••••" 
+                maxlength="20"
+                required
+              >
+            </div>
+            <div id="pinErrorMsg" class="alert alert-danger small d-none py-2">
+              <i class="fa-solid fa-circle-exclamation me-1"></i> الرقم السري غير صحيح!
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary-glow py-2">
+                <i class="fa-solid fa-unlock-keyhole me-1"></i> فتح لوحة الإدارة
+              </button>
+            </div>
+            <div class="text-center mt-3">
+              <small class="text-secondary">الرقم السري الافتراضي للنظام: <code class="text-info">1234</code></small>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index: 9999;">
+    <div id="appToast" class="toast cyber-toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header border-bottom border-secondary-subtle">
+        <i class="fa-solid fa-bell text-cyan me-2" id="toastIcon"></i>
+        <strong class="me-auto text-white" id="toastTitle">إشعار النظام</strong>
+        <small class="text-secondary">الآن</small>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body text-white" id="toastMessage">
+        تمت العملية بنجاح.
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN Scripts -->
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- SheetJS for Excel Reading and Exporting -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- JsBarcode for Instant Barcode Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+  <!-- Firebase 9 Compat Scripts (Runs without bundlers) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Application Logic Modules -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+
+</body>
+</html>
