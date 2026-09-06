@@ -202,8 +202,8 @@ function mapExcelRowsToStudents(rows) {
       else if (cleanKey.includes('كود') || cleanKey.includes('الكود') || cleanKey.includes('code') || cleanKey.includes('باركود') || cleanKey.includes('barcode')) {
         code = val;
       }
-      // الفرقة الدراسية
-      else if (cleanKey.includes('فرقة') || cleanKey.includes('الفرقة') || cleanKey.includes('grade') || cleanKey.includes('level') || cleanKey.includes('مستوى') || cleanKey.includes('سنة')) {
+      // الكلية / الفرقة الدراسية
+      else if (cleanKey.includes('كلية') || cleanKey.includes('الكلية') || cleanKey.includes('faculty') || cleanKey.includes('college') || cleanKey.includes('فرقة') || cleanKey.includes('الفرقة') || cleanKey.includes('grade') || cleanKey.includes('level') || cleanKey.includes('مستوى') || cleanKey.includes('سنة')) {
         grade = val;
       }
       // اليوم
@@ -226,7 +226,7 @@ function mapExcelRowsToStudents(rows) {
         nationalId: nationalId,
         name: name || 'طالب بجامعة اللوتس',
         code: code,
-        grade: grade || 'الفرقة الأولى',
+        grade: grade || 'كلية الحاسبات والذكاء الاصطناعي',
         day: day || 'الأحد',
         location: location || 'إدارة شؤون الطلاب - مبنى أ'
       });
@@ -423,7 +423,7 @@ function exportCurrentTableToExcel() {
     "الرقم القومي": s.nationalId,
     "اسم الطالب": s.name,
     "كود الطالب": s.code,
-    "الفرقة": s.grade,
+    "الكلية": s.grade || s.faculty || '',
     "اليوم": s.day,
     "المكان": s.location
   }));
@@ -445,7 +445,7 @@ function downloadExcelTemplate() {
       "الرقم القومي": "30101012401234",
       "اسم الطالب": "أحمد محمود حسن إبراهيم",
       "كود الطالب": "LUM-2024-8140",
-      "الفرقة": "الفرقة الأولى",
+      "الكلية": "كلية الهندسة",
       "اليوم": "الأحد 15 أكتوبر",
       "المكان": "مبنى كليات الهندسة - صالة أ"
     },
@@ -453,7 +453,7 @@ function downloadExcelTemplate() {
       "الرقم القومي": "30205122405678",
       "اسم الطالب": "مريم بولس فخري جرجس",
       "كود الطالب": "LUM-2024-8141",
-      "الفرقة": "الفرقة الأولى",
+      "الكلية": "كلية الصيدلة",
       "اليوم": "الإثنين 16 أكتوبر",
       "المكان": "مبنى الإدارة - شؤون الطلاب"
     },
@@ -461,7 +461,7 @@ function downloadExcelTemplate() {
       "الرقم القومي": "30108202409988",
       "اسم الطالب": "يوسف محمد عادل علي",
       "كود الطالب": "LUM-2024-8142",
-      "الفرقة": "الفرقة الثانية",
+      "الكلية": "كلية الحاسبات والذكاء الاصطناعي",
       "اليوم": "الثلاثاء 17 أكتوبر",
       "المكان": "مدرج 3 - الدور الأرضي"
     }
