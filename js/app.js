@@ -257,7 +257,7 @@ function displayStudentDetails(student) {
   // الحقول الأساسية
   document.getElementById("resStudentName").textContent = student.name || 'غير مدون';
   document.getElementById("resNationalId").textContent = student.nationalId || '--';
-  document.getElementById("resGrade").textContent = student.grade || 'غير مدون';
+  document.getElementById("resGrade").textContent = student.faculty || student.grade || 'غير مدون';
   document.getElementById("resDay").textContent = student.day || 'غير محدد';
   document.getElementById("resLocation").textContent = student.location || 'شؤون الطلاب';
 
@@ -370,7 +370,7 @@ function copyAllDetails() {
 اسم الطالب: ${s.name}
 الرقم القومي: ${s.nationalId}
 الكود الأكاديمي: ${s.code}
-الفرقة: ${s.grade}
+الكلية: ${s.faculty || s.grade || ''}
 موعد الاستلام: ${s.day}
 المكان: ${s.location}
 إشراف: م/ بولس سمير - مدير شئون الطلاب`;

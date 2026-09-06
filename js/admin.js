@@ -112,6 +112,50 @@ function initExcelDropZone() {
   });
 }
 
+let rawExcelRows = [];
+
+/**
+ * دالة مساعدة لتنظيف وتوحيد أسماء الأعمدة وحذف العلامات الخفية
+ */
+function cleanArabicHeader(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '') // حذف المسافات الخفية ورموز الترميز
+    .trim()
+    .toLowerCase()
+    .replace(/ة/g, 'ه')
+    .replace(/[إأآ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/[_\-\/\\]/g, ' ');
+}
+
+/**
+ * فحص هل النص يمثل فرقة دراسية وليس كلية
+ */
+function isGradeString(str) {
+  if (!str) return false;
+  const s = cleanArabicHeader(str);
+  return s.includes('فرقه') || s.includes('اولي') || s.includes('ثانيه') ||
+         s.includes('ثالثه') || s.includes('رابعه') || s.includes('خامسه') ||
+         s.includes('سادسه') || s.includes('مستوي') || s.includes('سنه') ||
+         s.includes('grade') || s.includes('level');
+}
+
+/**
+ * فحص هل النص يمثل اسم كلية أو تخصص جامعي
+ */
+function isFacultyString(str) {
+  if (!str) return false;
+  const s = cleanArabicHeader(str);
+  if (isGradeString(s) && !s.includes('كليه')) return false;
+  return s.includes('كليه') || s.includes('طب') || s.includes('صيدل') ||
+         s.includes('تمريض') || s.includes('اسنان') || s.includes('علاج') ||
+         s.includes('هندس') || s.includes('حاسب') || s.includes('ذكاء') ||
+         s.includes('ادار') || s.includes('لغات') || s.includes('فنون') ||
+         s.includes('علوم') || s.includes('اعلام') || s.includes('تكنولوج') ||
+         s.includes('جامع') || s.includes('معهد');
+}
+
 /**
  * قراءة ومعالجة ملف الإكسيل بواسطة SheetJS
  */
@@ -145,22 +189,34 @@ function handleSelectedExcelFile(file) {
         return;
       }
 
-      // مطابقة الأعمدة الذكية
-      parsedExcelStudents = mapExcelRowsToStudents(rawRows);
+      rawExcelRows = rawRows;
 
-      if (parsedExcelStudents.length === 0) {
-        showToast("خطأ بالأعمدة", "لم يتم العثور على عمود الرقم القومي في ملف الإكسيل!", "danger");
+      // استخراج جميع أسماء الأعمدة المتاحة في الشيت
+      const columnSet = new Set();
+      rawRows.slice(0, 10).forEach(r => {
+        Object.keys(r).forEach(k => {
+          if (k && !k.startsWith('__EMPTY')) columnSet.add(k.trim());
+        });
+      });
+      const availableColumns = Array.from(columnSet);
+
+      if (availableColumns.length === 0) {
+        showToast("خطأ بالأعمدة", "لم يتم العثور على عناوين أعمدة صالحة في الملف!", "danger");
         return;
       }
+
+      // إظهار صندوق مطابقة وتأكيد الأعمدة
+      setupColumnMappingSelects(availableColumns, rawRows);
+
+      // تطبيق مطابقة الأعمدة وإنشاء سجلات الطلاب
+      reparseWithCustomColumns();
 
       // تحديث شريط معلومات الملف
       document.getElementById("selectedFileName").textContent = file.name;
       document.getElementById("selectedFileSize").textContent = (file.size / 1024).toFixed(1) + " KB";
-      document.getElementById("selectedRowCount").textContent = parsedExcelStudents.length + " طالب جاهز للرفع";
       document.getElementById("fileSelectedBar").classList.remove("d-none");
-      document.getElementById("adminLoadedExcelRows").textContent = parsedExcelStudents.length;
 
-      showToast("تم تحليل الملف", `تم قراءة ${parsedExcelStudents.length} سجل طالب بنجاح. اضغط حفظ ومزامنة بالفيربيس.`, "success");
+      showToast("تم قراءة الملف بنجاح", `تم التعرف على ${parsedExcelStudents.length} طالب. برجاء مراجعة عمود الكلية بالأسفل قبل الحفظ.`, "success");
 
     } catch (err) {
       console.error("Excel read error:", err);
@@ -172,51 +228,167 @@ function handleSelectedExcelFile(file) {
 }
 
 /**
- * مطابقة أسماء أعمدة الإكسيل مع بنية بيانات النظام
+ * تهيئة قوائم اختيار ومطابقة الأعمدة
  */
-function mapExcelRowsToStudents(rows) {
+function setupColumnMappingSelects(columns, rows) {
+  const mapBox = document.getElementById("excelColumnMappingBox");
+  if (mapBox) mapBox.classList.remove("d-none");
+
+  const fields = [
+    { id: "mapColFaculty", type: "faculty" },
+    { id: "mapColName", type: "name" },
+    { id: "mapColNationalId", type: "nationalId" },
+    { id: "mapColCode", type: "code" },
+    { id: "mapColDay", type: "day" },
+    { id: "mapColLocation", type: "location" }
+  ];
+
+  fields.forEach(field => {
+    const select = document.getElementById(field.id);
+    if (!select) return;
+
+    select.innerHTML = '<option value="">-- كشف تلقائي ذكي --</option>';
+
+    let bestMatch = '';
+
+    columns.forEach(col => {
+      // إيجاد أول قيمة غير فارغة من أول 5 صفوف لتقديم عينة توضيحية
+      let sampleVal = '';
+      for (let i = 0; i < Math.min(rows.length, 5); i++) {
+        if (rows[i][col] !== undefined && String(rows[i][col]).trim() !== '') {
+          sampleVal = String(rows[i][col]).trim();
+          break;
+        }
+      }
+
+      const opt = document.createElement("option");
+      opt.value = col;
+      opt.textContent = sampleVal ? `${col} (مثال: ${sampleVal})` : col;
+      select.appendChild(opt);
+
+      // تخمين التطابق الأفضل
+      const cleanCol = cleanArabicHeader(col);
+      if (field.type === 'faculty') {
+        if (!bestMatch) {
+          if ((cleanCol.includes('كليه') || cleanCol.includes('faculty') || cleanCol.includes('college') || cleanCol.includes('تخصص') || cleanCol.includes('قسم') || cleanCol.includes('برنامج')) && !cleanCol.includes('فرقه')) {
+            bestMatch = col;
+          } else if (sampleVal && isFacultyString(sampleVal)) {
+            bestMatch = col;
+          }
+        }
+      } else if (field.type === 'name') {
+        if (!bestMatch && (cleanCol.includes('اسم') || cleanCol.includes('name') || cleanCol.includes('طالب'))) {
+          bestMatch = col;
+        }
+      } else if (field.type === 'nationalId') {
+        if (!bestMatch && (cleanCol.includes('قومي') || cleanCol.includes('بطاق') || cleanCol.includes('national') || cleanCol === 'nid' || cleanCol === 'id')) {
+          bestMatch = col;
+        }
+      } else if (field.type === 'code') {
+        if (!bestMatch && (cleanCol.includes('كود') || cleanCol.includes('code') || cleanCol.includes('باركود') || cleanCol.includes('barcode'))) {
+          bestMatch = col;
+        }
+      } else if (field.type === 'day') {
+        if (!bestMatch && (cleanCol.includes('يوم') || cleanCol.includes('day') || cleanCol.includes('تاريخ') || cleanCol.includes('date'))) {
+          bestMatch = col;
+        }
+      } else if (field.type === 'location') {
+        if (!bestMatch && (cleanCol.includes('مكان') || cleanCol.includes('قاع') || cleanCol.includes('مدرج') || cleanCol.includes('مبني') || cleanCol.includes('location') || cleanCol.includes('hall'))) {
+          bestMatch = col;
+        }
+      }
+    });
+
+    if (bestMatch) {
+      select.value = bestMatch;
+    }
+  });
+}
+
+/**
+ * استخراج وإعادة تحليل بيانات الطلاب بناءً على الأعمدة المحددة
+ */
+function reparseWithCustomColumns() {
+  if (!rawExcelRows || rawExcelRows.length === 0) return;
+
+  const colFaculty = document.getElementById("mapColFaculty") ? document.getElementById("mapColFaculty").value : '';
+  const colName = document.getElementById("mapColName") ? document.getElementById("mapColName").value : '';
+  const colNationalId = document.getElementById("mapColNationalId") ? document.getElementById("mapColNationalId").value : '';
+  const colCode = document.getElementById("mapColCode") ? document.getElementById("mapColCode").value : '';
+  const colDay = document.getElementById("mapColDay") ? document.getElementById("mapColDay").value : '';
+  const colLocation = document.getElementById("mapColLocation") ? document.getElementById("mapColLocation").value : '';
+
   const mappedList = [];
 
-  rows.forEach((row, index) => {
+  rawExcelRows.forEach((row, index) => {
     let nationalId = '';
     let name = '';
     let code = '';
-    let grade = '';
+    let faculty = '';
     let day = '';
     let location = '';
 
-    // البحث في المفاتيح بغض النظر عن المسافات وحالة الأحرف
-    for (const key of Object.keys(row)) {
-      const cleanKey = key.trim().toLowerCase().replace(/_/g, ' ');
-      const val = String(row[key] || '').trim();
+    // 1. استخراج الحقول إذا تم تحديد عمود محدد بالاسم
+    if (colNationalId && row[colNationalId] !== undefined) {
+      nationalId = normalizeArabicNumbers(String(row[colNationalId])).replace(/\D/g, '');
+    }
+    if (colName && row[colName] !== undefined) {
+      name = String(row[colName]).trim();
+    }
+    if (colCode && row[colCode] !== undefined) {
+      code = String(row[colCode]).trim();
+    }
+    if (colFaculty && row[colFaculty] !== undefined) {
+      faculty = String(row[colFaculty]).trim();
+    }
+    if (colDay && row[colDay] !== undefined) {
+      day = String(row[colDay]).trim();
+    }
+    if (colLocation && row[colLocation] !== undefined) {
+      location = String(row[colLocation]).trim();
+    }
 
-      // الرقم القومي
-      if (cleanKey.includes('رقم قومي') || cleanKey.includes('الرقم القومي') || cleanKey.includes('بطاقة') || cleanKey.includes('national') || cleanKey === 'nid' || cleanKey === 'id') {
+    // 2. الكشف التلقائي الذكي للحقول غير المحددة
+    for (const key of Object.keys(row)) {
+      const cleanKey = cleanArabicHeader(key);
+      const val = String(row[key] !== undefined && row[key] !== null ? row[key] : '').trim();
+      if (!val) continue;
+
+      if (!nationalId && (cleanKey.includes('قومي') || cleanKey.includes('بطاق') || cleanKey.includes('national') || cleanKey === 'nid' || cleanKey === 'id')) {
         nationalId = normalizeArabicNumbers(val).replace(/\D/g, '');
-      }
-      // اسم الطالب
-      else if (cleanKey.includes('اسم') || cleanKey.includes('الاسم') || cleanKey.includes('name') || cleanKey.includes('طالب')) {
+      } else if (!name && (cleanKey.includes('اسم') || cleanKey.includes('name') || cleanKey.includes('طالب'))) {
         name = val;
-      }
-      // الكود
-      else if (cleanKey.includes('كود') || cleanKey.includes('الكود') || cleanKey.includes('code') || cleanKey.includes('باركود') || cleanKey.includes('barcode')) {
+      } else if (!code && (cleanKey.includes('كود') || cleanKey.includes('code') || cleanKey.includes('باركود'))) {
         code = val;
-      }
-      // الكلية / الفرقة الدراسية
-      else if (cleanKey.includes('كلية') || cleanKey.includes('الكلية') || cleanKey.includes('faculty') || cleanKey.includes('college') || cleanKey.includes('فرقة') || cleanKey.includes('الفرقة') || cleanKey.includes('grade') || cleanKey.includes('level') || cleanKey.includes('مستوى') || cleanKey.includes('سنة')) {
-        grade = val;
-      }
-      // اليوم
-      else if (cleanKey.includes('يوم') || cleanKey.includes('اليوم') || cleanKey.includes('تاريخ') || cleanKey.includes('التاريخ') || cleanKey.includes('day') || cleanKey.includes('date')) {
+      } else if (!faculty && (cleanKey.includes('كليه') || cleanKey.includes('faculty') || cleanKey.includes('college') || cleanKey.includes('قسم') || cleanKey.includes('تخصص') || cleanKey.includes('برنامج')) && !cleanKey.includes('فرقه')) {
+        faculty = val;
+      } else if (!day && (cleanKey.includes('يوم') || cleanKey.includes('day') || cleanKey.includes('تاريخ'))) {
         day = val;
-      }
-      // المكان
-      else if (cleanKey.includes('مكان') || cleanKey.includes('المكان') || cleanKey.includes('قاعة') || cleanKey.includes('مدرج') || cleanKey.includes('location') || cleanKey.includes('hall') || cleanKey.includes('place')) {
+      } else if (!location && (cleanKey.includes('مكان') || cleanKey.includes('قاع') || cleanKey.includes('مدرج') || cleanKey.includes('مبني') || cleanKey.includes('location'))) {
         location = val;
       }
     }
 
-    // إذا لم يكن هناك عمود كود مخصص، نولد كوداً تسلسلياً بناء على الترتيب أو الرقم
+    // 3. فحص دقيق لمنع وضع الفرقة ككلية:
+    // إذا كانت الكلية فارغة أو كانت تحتوي على "الفرقة الأولى" أو ما يشابهها، نبحث في كافة خلايا الصف عن اسم كلية حقيقي
+    if (!faculty || isGradeString(faculty)) {
+      let foundFaculty = '';
+      for (const key of Object.keys(row)) {
+        const cellVal = String(row[key] || '').trim();
+        if (isFacultyString(cellVal)) {
+          foundFaculty = cellVal;
+          break;
+        }
+      }
+      if (foundFaculty) {
+        faculty = foundFaculty;
+      } else if (isGradeString(faculty)) {
+        // إذا كان الحقل يحتوي على الفرقة ولم نجد كلية، نتركه فارغاً حتى لا تظهر الفرقة إطلاقاً مكان الكلية
+        faculty = '';
+      }
+    }
+
+    // إذا لم يكن هناك عمود كود مخصص، نولد كوداً تسلسلياً بناء على الترتيب
     if (!code && nationalId) {
       code = 'LUM-' + (1000 + index + 1);
     }
@@ -226,14 +398,51 @@ function mapExcelRowsToStudents(rows) {
         nationalId: nationalId,
         name: name || 'طالب بجامعة اللوتس',
         code: code,
-        grade: grade || 'كلية الحاسبات والذكاء الاصطناعي',
+        faculty: faculty || 'جامعة اللوتس',
+        grade: faculty || 'جامعة اللوتس', // للحفاظ على التوافق الكامل مع كافة السجلات واستبدال أي فرقة قديمة
         day: day || 'الأحد',
         location: location || 'إدارة شؤون الطلاب - مبنى أ'
       });
     }
   });
 
-  return mappedList;
+  parsedExcelStudents = mappedList;
+
+  // تحديث العدادات
+  const rowCountEl = document.getElementById("selectedRowCount");
+  const loadedRowsEl = document.getElementById("adminLoadedExcelRows");
+  if (rowCountEl) rowCountEl.textContent = parsedExcelStudents.length + " طالب جاهز للرفع";
+  if (loadedRowsEl) loadedRowsEl.textContent = parsedExcelStudents.length;
+
+  // تحديث المعاينة الحية
+  updateExcelSamplePreview();
+}
+
+/**
+ * تحديث المعاينة الحية لأول سجل سيتم رفعه
+ */
+function updateExcelSamplePreview() {
+  const previewBox = document.getElementById("excelSamplePreview");
+  if (!previewBox) return;
+
+  if (!parsedExcelStudents || parsedExcelStudents.length === 0) {
+    previewBox.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> لم يتم استخراج أي طلاب! يرجى التأكد من اختيار عمود الرقم القومي.</span>`;
+    return;
+  }
+
+  const sample = parsedExcelStudents[0];
+  const facultyBadgeClass = sample.faculty && !isGradeString(sample.faculty) ? "bg-warning text-dark" : "bg-danger text-white";
+
+  previewBox.innerHTML = `
+    <div class="d-flex flex-wrap gap-3 align-items-center py-1">
+      <div><span class="text-secondary small">اسم الطالب:</span> <strong class="text-white">${sample.name}</strong></div>
+      <div><span class="text-secondary small">الرقم القومي:</span> <span class="text-info font-monospace">${sample.nationalId}</span></div>
+      <div><span class="text-secondary small">الكلية المعتمدة:</span> <span class="badge ${facultyBadgeClass} fw-bold px-2 py-1 fs-6">${sample.faculty}</span></div>
+      <div><span class="text-secondary small">الكود الأكاديمي:</span> <span class="text-cyan font-monospace">${sample.code}</span></div>
+      <div><span class="text-secondary small">اليوم:</span> <span class="text-success">${sample.day}</span></div>
+      <div><span class="text-secondary small">المكان:</span> <span class="text-secondary">${sample.location}</span></div>
+    </div>
+  `;
 }
 
 /**
@@ -264,7 +473,15 @@ async function uploadParsedDataToFirebase() {
     // تجهيز كائن التحديث الجماعي السريع (Atomic Multi-location Update)
     const updates = {};
     parsedExcelStudents.forEach(student => {
-      updates['students/' + student.nationalId] = student;
+      updates['students/' + student.nationalId] = {
+        nationalId: student.nationalId,
+        name: student.name,
+        code: student.code,
+        faculty: student.faculty,
+        grade: student.faculty, // تحديث grade ليكون اسم الكلية حتى تُستبدل أي بيانات سابقة
+        day: student.day,
+        location: student.location
+      };
     });
 
     progressBar.style.width = "50%";
@@ -276,7 +493,8 @@ async function uploadParsedDataToFirebase() {
     progressBar.style.width = "100%";
     progressPercent.textContent = "100%";
 
-    showToast("تم الحفظ بنجاح!", `تم رفع ومزامنة ${parsedExcelStudents.length} طالب في الفيربيس بنجاح.`, "success");
+    const sampleFaculty = parsedExcelStudents[0]?.faculty || '';
+    showToast("تم الحفظ بنجاح!", `تم رفع ومزامنة ${parsedExcelStudents.length} طالب بنجاح (الكلية: ${sampleFaculty}).`, "success");
 
     setTimeout(() => {
       progressWrapper.classList.add("d-none");
@@ -297,8 +515,11 @@ async function uploadParsedDataToFirebase() {
  */
 function clearSelectedExcel() {
   parsedExcelStudents = [];
+  rawExcelRows = [];
   document.getElementById("excelFileInput").value = "";
   document.getElementById("fileSelectedBar").classList.add("d-none");
+  const mapBox = document.getElementById("excelColumnMappingBox");
+  if (mapBox) mapBox.classList.add("d-none");
   document.getElementById("adminLoadedExcelRows").textContent = "0";
 }
 
@@ -341,7 +562,7 @@ function renderAdminTable(dataObj) {
           <span class="badge bg-primary-subtle text-cyan border border-info font-monospace fw-bold me-1">${split.dynamicPart}</span>
           <span class="badge bg-dark border border-secondary text-secondary font-monospace">${split.fixedPart}</span>
         </td>
-        <td><span class="badge bg-secondary-subtle text-warning">${s.grade}</span></td>
+        <td><span class="badge bg-warning-subtle text-warning fw-bold">${s.faculty || s.grade || 'غير محدد'}</span></td>
         <td><span class="text-success">${s.day}</span></td>
         <td><small class="text-secondary">${s.location}</small></td>
         <td class="text-center">
@@ -404,7 +625,7 @@ async function confirmClearAllDatabase() {
       showToast("تم المسح", "تم إفراغ قاعدة بيانات الطلاب بالكامل.", "info");
     }
   } catch (err) {
-    showToast("خطأ", "تعذر مسح البيانات: " + err.message, "danger");
+    showToast("خطأ", "تعذر المسح: " + err.message, "danger");
   }
 }
 
@@ -423,7 +644,7 @@ function exportCurrentTableToExcel() {
     "الرقم القومي": s.nationalId,
     "اسم الطالب": s.name,
     "كود الطالب": s.code,
-    "الكلية": s.grade || s.faculty || '',
+    "الكلية": s.faculty || s.grade || '',
     "اليوم": s.day,
     "المكان": s.location
   }));
@@ -522,4 +743,4 @@ function updateSplitSettings() {
 // تصدير الدوال للكائن العام window
 window.updateSplitSettings = updateSplitSettings;
 window.renderAdminTable = renderAdminTable;
-
+window.reparseWithCustomColumns = reparseWithCustomColumns;

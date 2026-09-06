@@ -253,16 +253,28 @@ header, main, footer, .modal {
 
 .cyber-select {
   background-color: #0f172a;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   color: #f8fafc;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .cyber-select:focus {
-  background-color: #1e293b;
-  color: #ffffff;
   border-color: var(--primary-cyan);
-  box-shadow: 0 0 10px var(--cyan-glow);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  background-color: #0b1120;
+  color: #ffffff;
+}
+
+#mapColFaculty {
+  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  background-color: rgba(245, 158, 11, 0.08);
+  color: #fef08a;
+  font-weight: 600;
+}
+
+#mapColFaculty:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
 }
 
 /* Buttons */
@@ -730,6 +742,127 @@ header, main, footer, .modal {
   background: rgba(56, 189, 248, 0.12);
   border: 1px solid rgba(56, 189, 248, 0.3);
   color: #38bdf8;
+}
+
+/* ==========================================================================
+   RESPONSIVE STYLES (تحسينات وضع الموبايل لجعل الكود دائماً بجوار بعضه)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .student-karyaneh-card {
+    padding: 20px 14px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* صندوق الكود في الموبايل */
+  .code-spotlight-wrapper {
+    padding: 16px 10px !important;
+  }
+
+  .code-spotlight-wrapper .text-start.mb-5 {
+    margin-bottom: 2.2rem !important;
+  }
+
+  .code-box-title {
+    font-size: 0.92rem !important;
+  }
+
+  /* جعل أجزاء الكود في سطر واحد دائماً بجوار بعضهم ومنع النزول لسطر جديد */
+  #splitCodeDisplay {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    margin-top: 2.2rem !important;
+    padding-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    max-width: 100% !important;
+    overflow-x: visible !important;
+  }
+
+  /* الجزء المميز مع السهم */
+  .code-highlighted-badge {
+    padding: 8px 14px !important;
+    border-radius: 14px !important;
+    border-width: 2px !important;
+    gap: 6px !important;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5) !important;
+  }
+
+  .code-highlighted-val {
+    font-size: 1.35rem !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* الفاصل */
+  .code-dash-separator {
+    font-size: 1.5rem !important;
+    padding: 0 2px !important;
+  }
+
+  /* الجزء الثابت */
+  .code-fixed-badge {
+    padding: 8px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .code-fixed-val {
+    font-size: 1.18rem !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* السهم التوضيحي للأعلى */
+  .animated-arrow-pointer {
+    top: -46px !important;
+  }
+
+  .arrow-badge-pill {
+    padding: 3px 9px !important;
+    font-size: 0.72rem !important;
+    border-radius: 16px !important;
+  }
+
+  .bounce-arrow {
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 400px) {
+  /* لشاشات الموبايل الأصغر حجماً (مثل 360px - 380px) */
+  #splitCodeDisplay {
+    gap: 4px !important;
+  }
+
+  .code-highlighted-badge {
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+  }
+
+  .code-highlighted-val {
+    font-size: 1.18rem !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .code-fixed-badge {
+    padding: 6px 10px !important;
+    border-radius: 10px !important;
+  }
+
+  .code-fixed-val {
+    font-size: 1.05rem !important;
+  }
+
+  .code-dash-separator {
+    font-size: 1.25rem !important;
+  }
+
+  .arrow-badge-pill {
+    padding: 2px 7px !important;
+    font-size: 0.68rem !important;
+  }
+
+  .animated-arrow-pointer {
+    top: -42px !important;
+  }
 }
 
 /* ==========================================================================
