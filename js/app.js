@@ -254,12 +254,20 @@ async function searchStudent() {
  * عرض بيانات الطالب في الكارت المخصص
  */
 function displayStudentDetails(student) {
-  // الحقول الأساسية
-  document.getElementById("resStudentName").textContent = student.name || 'غير مدون';
-  document.getElementById("resNationalId").textContent = student.nationalId || '--';
-  document.getElementById("resGrade").textContent = student.faculty || student.grade || 'غير مدون';
-  document.getElementById("resDay").textContent = student.day || 'غير محدد';
-  document.getElementById("resLocation").textContent = student.location || 'شؤون الطلاب';
+  // الحقول الأساسية: الرقم القومي - الاسم - الكود - الكلية - اليوم - المكان
+  const nationalIdEl = document.getElementById("resNationalId");
+  const nameEl = document.getElementById("resStudentName");
+  const codeEl = document.getElementById("resCode");
+  const facultyEl = document.getElementById("resFaculty") || document.getElementById("resGrade");
+  const dayEl = document.getElementById("resDay");
+  const locationEl = document.getElementById("resLocation");
+
+  if (nationalIdEl) nationalIdEl.textContent = student.nationalId || '--';
+  if (nameEl) nameEl.textContent = student.name || 'غير مدون';
+  if (codeEl) codeEl.textContent = student.code || '--';
+  if (facultyEl) facultyEl.textContent = student.faculty || student.grade || 'غير مدون';
+  if (dayEl) dayEl.textContent = student.day || 'غير محدد';
+  if (locationEl) locationEl.textContent = student.location || 'شؤون الطلاب';
 
   // معالجة وتقسيم الكود
   const rawCode = String(student.code || '').trim();
@@ -367,11 +375,11 @@ function copyAllDetails() {
   if (!currentStudentData) return;
   const s = currentStudentData;
   const text = `جامعة اللوتس بالمنيا - إشعار كود الطالب
-اسم الطالب: ${s.name}
 الرقم القومي: ${s.nationalId}
-الكود الأكاديمي: ${s.code}
+الاسم: ${s.name}
+الكود: ${s.code}
 الكلية: ${s.faculty || s.grade || ''}
-موعد الاستلام: ${s.day}
+اليوم: ${s.day}
 المكان: ${s.location}
 إشراف: م/ بولس سمير - مدير شئون الطلاب`;
 

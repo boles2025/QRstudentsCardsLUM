@@ -193,19 +193,27 @@
               <!-- Student Information Grid -->
               <div class="row g-3">
                 
-                <!-- Name -->
-                <div class="col-md-12">
-                  <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-user text-cyan me-2"></i>اسم الطالب:</span>
-                    <span class="info-field-value text-white fw-bold fs-5" id="resStudentName">--</span>
-                  </div>
-                </div>
-
                 <!-- National ID -->
                 <div class="col-md-6">
                   <div class="info-field-card">
                     <span class="info-field-label"><i class="fa-solid fa-id-badge text-cyan me-2"></i>الرقم القومي:</span>
                     <span class="info-field-value text-info font-monospace fs-5" id="resNationalId">--</span>
+                  </div>
+                </div>
+
+                <!-- Name -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-user text-cyan me-2"></i>الاسم:</span>
+                    <span class="info-field-value text-white fw-bold fs-5" id="resStudentName">--</span>
+                  </div>
+                </div>
+
+                <!-- Code -->
+                <div class="col-md-6">
+                  <div class="info-field-card">
+                    <span class="info-field-label"><i class="fa-solid fa-key text-cyan me-2"></i>الكود:</span>
+                    <span class="info-field-value text-cyan font-monospace fw-bold fs-5" id="resCode">--</span>
                   </div>
                 </div>
 
@@ -220,7 +228,7 @@
                 <!-- Day -->
                 <div class="col-md-6">
                   <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-calendar-day text-cyan me-2"></i>اليوم المقرر:</span>
+                    <span class="info-field-label"><i class="fa-solid fa-calendar-day text-cyan me-2"></i>اليوم:</span>
                     <span class="info-field-value text-success fw-bold" id="resDay">--</span>
                   </div>
                 </div>
@@ -228,7 +236,7 @@
                 <!-- Location -->
                 <div class="col-md-6">
                   <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-location-dot text-danger me-2"></i>المكان / القاعة:</span>
+                    <span class="info-field-label"><i class="fa-solid fa-location-dot text-danger me-2"></i>المكان:</span>
                     <span class="info-field-value text-white fw-bold" id="resLocation">--</span>
                   </div>
                 </div>
@@ -381,27 +389,27 @@
               </div>
               <div class="row g-2">
                 <div class="col-md-4 col-sm-6">
+                  <label class="form-label text-info small mb-1 fw-bold"><i class="fa-solid fa-id-card me-1"></i> عمود الرقم القومي:</label>
+                  <select id="mapColNationalId" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label text-white small mb-1 fw-bold"><i class="fa-solid fa-user me-1"></i> عمود الاسم:</label>
+                  <select id="mapColName" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label text-secondary small mb-1 fw-bold"><i class="fa-solid fa-key me-1"></i> عمود الكود:</label>
+                  <select id="mapColCode" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
+                </div>
+                <div class="col-md-4 col-sm-6">
                   <label class="form-label text-warning small mb-1 fw-bold"><i class="fa-solid fa-graduation-cap me-1"></i> عمود الكلية:</label>
                   <select id="mapColFaculty" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-white small mb-1"><i class="fa-solid fa-user me-1"></i> عمود اسم الطالب:</label>
-                  <select id="mapColName" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-info small mb-1"><i class="fa-solid fa-id-card me-1"></i> عمود الرقم القومي:</label>
-                  <select id="mapColNationalId" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-secondary small mb-1"><i class="fa-solid fa-key me-1"></i> عمود الكود:</label>
-                  <select id="mapColCode" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-success small mb-1"><i class="fa-solid fa-calendar-day me-1"></i> عمود اليوم:</label>
+                  <label class="form-label text-success small mb-1 fw-bold"><i class="fa-solid fa-calendar-day me-1"></i> عمود اليوم:</label>
                   <select id="mapColDay" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-danger small mb-1"><i class="fa-solid fa-location-dot me-1"></i> عمود المكان:</label>
+                  <label class="form-label text-danger small mb-1 fw-bold"><i class="fa-solid fa-location-dot me-1"></i> عمود المكان:</label>
                   <select id="mapColLocation" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
                 </div>
               </div>
@@ -426,9 +434,9 @@
 
             <div class="small text-secondary">
               <i class="fa-solid fa-circle-info text-cyan me-1"></i>
-              <strong>الأعمدة المطلوبة في الإكسيل:</strong> 
-              الرقم القومي (National ID) - الاسم (Name) - الكود (Code) - الكلية (Faculty) - اليوم (Day) - المكان (Location).
-              (يقوم النظام بالتعرف على أسماء الأعمدة تلقائياً).
+              <strong>الأعمدة المعتمدة في ملف الإكسيل:</strong> 
+              الرقم القومي - الاسم - الكود - الكلية - اليوم - المكان.
+              (يتعرف النظام على أسماء الأعمدة وترتيبها تلقائياً).
             </div>
 
           </div>
@@ -505,8 +513,8 @@
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">الرقم القومي</th>
-                <th scope="col">اسم الطالب</th>
-                <th scope="col">الكود الكامل</th>
+                <th scope="col">الاسم</th>
+                <th scope="col">الكود</th>
                 <th scope="col">الكود المقسم</th>
                 <th scope="col">الكلية</th>
                 <th scope="col">اليوم</th>

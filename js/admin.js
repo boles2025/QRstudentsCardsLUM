@@ -235,12 +235,12 @@ function setupColumnMappingSelects(columns, rows) {
   if (mapBox) mapBox.classList.remove("d-none");
 
   const fields = [
-    { id: "mapColFaculty", type: "faculty" },
-    { id: "mapColName", type: "name" },
-    { id: "mapColNationalId", type: "nationalId" },
-    { id: "mapColCode", type: "code" },
-    { id: "mapColDay", type: "day" },
-    { id: "mapColLocation", type: "location" }
+    { id: "mapColNationalId", type: "nationalId", defaultIndex: 0 },
+    { id: "mapColName", type: "name", defaultIndex: 1 },
+    { id: "mapColCode", type: "code", defaultIndex: 2 },
+    { id: "mapColFaculty", type: "faculty", defaultIndex: 3 },
+    { id: "mapColDay", type: "day", defaultIndex: 4 },
+    { id: "mapColLocation", type: "location", defaultIndex: 5 }
   ];
 
   fields.forEach(field => {
@@ -268,25 +268,27 @@ function setupColumnMappingSelects(columns, rows) {
 
       // تخمين التطابق الأفضل
       const cleanCol = cleanArabicHeader(col);
-      if (field.type === 'faculty') {
-        if (!bestMatch) {
-          if ((cleanCol.includes('كليه') || cleanCol.includes('faculty') || cleanCol.includes('college') || cleanCol.includes('تخصص') || cleanCol.includes('قسم') || cleanCol.includes('برنامج')) && !cleanCol.includes('فرقه')) {
-            bestMatch = col;
-          } else if (sampleVal && isFacultyString(sampleVal)) {
-            bestMatch = col;
-          }
+      if (field.type === 'nationalId') {
+        if (!bestMatch && (cleanCol.includes('قومي') || cleanCol.includes('بطاق') || cleanCol.includes('national') || cleanCol === 'nid' || cleanCol === 'id')) {
+          bestMatch = col;
         }
       } else if (field.type === 'name') {
         if (!bestMatch && (cleanCol.includes('اسم') || cleanCol.includes('name') || cleanCol.includes('طالب'))) {
           bestMatch = col;
         }
-      } else if (field.type === 'nationalId') {
-        if (!bestMatch && (cleanCol.includes('قومي') || cleanCol.includes('بطاق') || cleanCol.includes('national') || cleanCol === 'nid' || cleanCol === 'id')) {
-          bestMatch = col;
-        }
       } else if (field.type === 'code') {
         if (!bestMatch && (cleanCol.includes('كود') || cleanCol.includes('code') || cleanCol.includes('باركود') || cleanCol.includes('barcode'))) {
           bestMatch = col;
+        }
+      } else if (field.type === 'faculty') {
+        if (!bestMatch) {
+          if (cleanCol.includes('كليه') || cleanCol.includes('faculty') || cleanCol.includes('college') || cleanCol.includes('تخصص') || cleanCol.includes('قسم') || cleanCol.includes('برنامج')) {
+            bestMatch = col;
+          } else if (cleanCol.includes('فرقه') || cleanCol.includes('grade')) {
+            bestMatch = col;
+          } else if (sampleVal && isFacultyString(sampleVal)) {
+            bestMatch = col;
+          }
         }
       } else if (field.type === 'day') {
         if (!bestMatch && (cleanCol.includes('يوم') || cleanCol.includes('day') || cleanCol.includes('تاريخ') || cleanCol.includes('date'))) {
@@ -298,6 +300,11 @@ function setupColumnMappingSelects(columns, rows) {
         }
       }
     });
+
+    // إذا لم يتم العثور على اسم عمود صريح وكان الملف يحتوي على أعمدة كافية، اعتمد الترتيب الافتراضي
+    if (!bestMatch && columns[field.defaultIndex]) {
+      bestMatch = columns[field.defaultIndex];
+    }
 
     if (bestMatch) {
       select.value = bestMatch;
@@ -349,7 +356,8 @@ function reparseWithCustomColumns() {
     }
 
     // 2. الكشف التلقائي الذكي للحقول غير المحددة
-    for (const key of Object.keys(row)) {
+    const rowKeys = Object.keys(row);
+    for (const key of rowKeys) {
       const cleanKey = cleanArabicHeader(key);
       const val = String(row[key] !== undefined && row[key] !== null ? row[key] : '').trim();
       if (!val) continue;
@@ -358,34 +366,36 @@ function reparseWithCustomColumns() {
         nationalId = normalizeArabicNumbers(val).replace(/\D/g, '');
       } else if (!name && (cleanKey.includes('اسم') || cleanKey.includes('name') || cleanKey.includes('طالب'))) {
         name = val;
-      } else if (!code && (cleanKey.includes('كود') || cleanKey.includes('code') || cleanKey.includes('باركود'))) {
+      } else if (!code && (cleanKey.includes('كود') || cleanKey.includes('code') || cleanKey.includes('باركود') || cleanKey.includes('barcode'))) {
         code = val;
-      } else if (!faculty && (cleanKey.includes('كليه') || cleanKey.includes('faculty') || cleanKey.includes('college') || cleanKey.includes('قسم') || cleanKey.includes('تخصص') || cleanKey.includes('برنامج')) && !cleanKey.includes('فرقه')) {
+      } else if (!faculty && (cleanKey.includes('كليه') || cleanKey.includes('faculty') || cleanKey.includes('college') || cleanKey.includes('قسم') || cleanKey.includes('تخصص') || cleanKey.includes('برنامج') || cleanKey.includes('فرقه') || cleanKey.includes('grade'))) {
         faculty = val;
-      } else if (!day && (cleanKey.includes('يوم') || cleanKey.includes('day') || cleanKey.includes('تاريخ'))) {
+      } else if (!day && (cleanKey.includes('يوم') || cleanKey.includes('day') || cleanKey.includes('تاريخ') || cleanKey.includes('date'))) {
         day = val;
-      } else if (!location && (cleanKey.includes('مكان') || cleanKey.includes('قاع') || cleanKey.includes('مدرج') || cleanKey.includes('مبني') || cleanKey.includes('location'))) {
+      } else if (!location && (cleanKey.includes('مكان') || cleanKey.includes('قاع') || cleanKey.includes('مدرج') || cleanKey.includes('مبني') || cleanKey.includes('location') || cleanKey.includes('hall'))) {
         location = val;
       }
     }
 
-    // 3. فحص دقيق لمنع وضع الفرقة ككلية:
-    // إذا كانت الكلية فارغة أو كانت تحتوي على "الفرقة الأولى" أو ما يشابهها، نبحث في كافة خلايا الصف عن اسم كلية حقيقي
-    if (!faculty || isGradeString(faculty)) {
-      let foundFaculty = '';
-      for (const key of Object.keys(row)) {
-        const cellVal = String(row[key] || '').trim();
-        if (isFacultyString(cellVal)) {
-          foundFaculty = cellVal;
-          break;
-        }
-      }
-      if (foundFaculty) {
-        faculty = foundFaculty;
-      } else if (isGradeString(faculty)) {
-        // إذا كان الحقل يحتوي على الفرقة ولم نجد كلية، نتركه فارغاً حتى لا تظهر الفرقة إطلاقاً مكان الكلية
-        faculty = '';
-      }
+    // 3. دعم الترتيب الافتراضي للأعمدة (1: الرقم القومي، 2: الاسم، 3: الكود، 4: الكلية، 5: اليوم، 6: المكان)
+    if (!nationalId && rowKeys[0] && row[rowKeys[0]] !== undefined) {
+      const val0 = normalizeArabicNumbers(String(row[rowKeys[0]])).replace(/\D/g, '');
+      if (val0.length >= 6) nationalId = val0;
+    }
+    if (!name && rowKeys[1] && row[rowKeys[1]] !== undefined) {
+      name = String(row[rowKeys[1]]).trim();
+    }
+    if (!code && rowKeys[2] && row[rowKeys[2]] !== undefined) {
+      code = String(row[rowKeys[2]]).trim();
+    }
+    if (!faculty && rowKeys[3] && row[rowKeys[3]] !== undefined) {
+      faculty = String(row[rowKeys[3]]).trim();
+    }
+    if (!day && rowKeys[4] && row[rowKeys[4]] !== undefined) {
+      day = String(row[rowKeys[4]]).trim();
+    }
+    if (!location && rowKeys[5] && row[rowKeys[5]] !== undefined) {
+      location = String(row[rowKeys[5]]).trim();
     }
 
     // إذا لم يكن هناك عمود كود مخصص، نولد كوداً تسلسلياً بناء على الترتيب
@@ -399,9 +409,9 @@ function reparseWithCustomColumns() {
         name: name || 'طالب بجامعة اللوتس',
         code: code,
         faculty: faculty || 'جامعة اللوتس',
-        grade: faculty || 'جامعة اللوتس', // للحفاظ على التوافق الكامل مع كافة السجلات واستبدال أي فرقة قديمة
+        grade: faculty || 'جامعة اللوتس', // للحفاظ على التوافق الكامل مع كافة السجلات
         day: day || 'الأحد',
-        location: location || 'إدارة شؤون الطلاب - مبنى أ'
+        location: location || 'إدارة شؤون الطلاب'
       });
     }
   });
@@ -431,14 +441,13 @@ function updateExcelSamplePreview() {
   }
 
   const sample = parsedExcelStudents[0];
-  const facultyBadgeClass = sample.faculty && !isGradeString(sample.faculty) ? "bg-warning text-dark" : "bg-danger text-white";
 
   previewBox.innerHTML = `
     <div class="d-flex flex-wrap gap-3 align-items-center py-1">
-      <div><span class="text-secondary small">اسم الطالب:</span> <strong class="text-white">${sample.name}</strong></div>
       <div><span class="text-secondary small">الرقم القومي:</span> <span class="text-info font-monospace">${sample.nationalId}</span></div>
-      <div><span class="text-secondary small">الكلية المعتمدة:</span> <span class="badge ${facultyBadgeClass} fw-bold px-2 py-1 fs-6">${sample.faculty}</span></div>
-      <div><span class="text-secondary small">الكود الأكاديمي:</span> <span class="text-cyan font-monospace">${sample.code}</span></div>
+      <div><span class="text-secondary small">الاسم:</span> <strong class="text-white">${sample.name}</strong></div>
+      <div><span class="text-secondary small">الكود:</span> <span class="text-cyan font-monospace">${sample.code}</span></div>
+      <div><span class="text-secondary small">الكلية:</span> <span class="badge bg-warning text-dark fw-bold px-2 py-1 fs-6">${sample.faculty}</span></div>
       <div><span class="text-secondary small">اليوم:</span> <span class="text-success">${sample.day}</span></div>
       <div><span class="text-secondary small">المكان:</span> <span class="text-secondary">${sample.location}</span></div>
     </div>
@@ -642,8 +651,8 @@ function exportCurrentTableToExcel() {
   const exportData = studentsList.map((s, idx) => ({
     "م": idx + 1,
     "الرقم القومي": s.nationalId,
-    "اسم الطالب": s.name,
-    "كود الطالب": s.code,
+    "الاسم": s.name,
+    "الكود": s.code,
     "الكلية": s.faculty || s.grade || '',
     "اليوم": s.day,
     "المكان": s.location
@@ -664,24 +673,24 @@ function downloadExcelTemplate() {
   const sampleData = [
     {
       "الرقم القومي": "30101012401234",
-      "اسم الطالب": "أحمد محمود حسن إبراهيم",
-      "كود الطالب": "LUM-2024-8140",
+      "الاسم": "أحمد محمود حسن إبراهيم",
+      "الكود": "LUM-2024-8140",
       "الكلية": "كلية الهندسة",
       "اليوم": "الأحد 15 أكتوبر",
       "المكان": "مبنى كليات الهندسة - صالة أ"
     },
     {
       "الرقم القومي": "30205122405678",
-      "اسم الطالب": "مريم بولس فخري جرجس",
-      "كود الطالب": "LUM-2024-8141",
+      "الاسم": "مريم بولس فخري جرجس",
+      "الكود": "LUM-2024-8141",
       "الكلية": "كلية الصيدلة",
       "اليوم": "الإثنين 16 أكتوبر",
       "المكان": "مبنى الإدارة - شؤون الطلاب"
     },
     {
       "الرقم القومي": "30108202409988",
-      "اسم الطالب": "يوسف محمد عادل علي",
-      "كود الطالب": "LUM-2024-8142",
+      "الاسم": "يوسف محمد عادل علي",
+      "الكود": "LUM-2024-8142",
       "الكلية": "كلية الحاسبات والذكاء الاصطناعي",
       "اليوم": "الثلاثاء 17 أكتوبر",
       "المكان": "مدرج 3 - الدور الأرضي"
