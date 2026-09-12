@@ -693,18 +693,24 @@ header, main, footer, .modal {
 
 /* Date Highlight Card (بطاقة موعد الحضور المنسقة) */
 .date-highlight-card {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(15, 23, 42, 0.85)) !important;
-  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
-  padding: 11px 18px !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(15, 23, 42, 0.88)) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.4) !important;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.12);
+  padding: 12px 18px !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .date-highlight-card:hover {
-  border-color: rgba(16, 185, 129, 0.6) !important;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.7) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.22);
 }
 
 .date-icon-box-sm {
@@ -724,19 +730,33 @@ header, main, footer, .modal {
   color: #a7f3d0 !important;
 }
 
+.date-value-wrap {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+}
+
 .date-value-badge {
   color: #34d399 !important;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  padding: 5px 14px;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  padding: 6px 16px;
   border-radius: 10px;
-  font-size: 1.05rem !important;
+  font-size: 1.02rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.2px;
   text-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
+  display: inline-block;
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.unified-schedule-locations-frame h5 {
+  font-size: clamp(1rem, 2.8vw, 1.25rem);
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 /* ==========================================================================
@@ -1209,12 +1229,27 @@ header, main, footer, .modal {
   }
 
   .date-highlight-card {
-    padding: 10px 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .date-value-wrap {
+    width: 100% !important;
+    display: block !important;
   }
 
   .date-value-badge {
-    font-size: 0.98rem !important;
-    padding: 4px 10px !important;
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+    font-size: 0.95rem !important;
+    padding: 7px 10px !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
   }
 }
 
@@ -1266,7 +1301,7 @@ header, main, footer, .modal {
 
   .date-value-badge {
     font-size: 0.9rem !important;
-    padding: 3px 8px !important;
+    padding: 6px 10px !important;
   }
 }
 
