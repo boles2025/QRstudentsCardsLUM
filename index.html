@@ -34,7 +34,7 @@
       <div class="d-flex align-items-center">
         <div>
           <h1 class="h4 mb-0 fw-bold university-title text-gradient">جامعة اللوتس بالمنيا</h1>
-          <small class="text-secondary-glow">Lotus University in Minya - إدارة شؤون الطلاب</small>
+          <small class="text-secondary-glow">Lotus University in Minya</small>
         </div>
       </div>
 
@@ -125,7 +125,7 @@
                 </div>
                 <div>
                   <h4 class="mb-0 fw-bold text-white">جامعة اللوتس بالمنيا</h4>
-                  <small class="text-secondary">Lotus University in Minya - إدارة شؤون الطلاب</small>
+                  <small class="text-secondary">Lotus University in Minya</small>
                 </div>
               </div>
             </div>
@@ -179,30 +179,27 @@
 
             </div>
 
-            <!-- Student Information Frame (إطار ملون مميز ومضيء لباقي الداتا) -->
+            <!-- Student Information Frame (بيانات الطالب الأساسية) -->
             <div class="student-info-custom-frame p-3 p-md-4 rounded-4 mt-4">
-              <div class="d-flex align-items-center justify-content-between border-bottom border-secondary-subtle pb-2 mb-3 flex-wrap gap-2">
-                <span class="badge bg-cyber-gradient px-3 py-2 rounded-pill fw-bold">
-                  <i class="fa-solid fa-address-card me-1"></i> تفاصيل وبيانات الطالب
-                </span>
-                <span class="text-secondary small">
-                  <i class="fa-solid fa-check-double text-cyan me-1"></i> إدارة شؤون الطلاب - جامعة اللوتس
+              <div class="border-bottom border-secondary-subtle pb-3 mb-3">
+                <span class="badge bg-cyber-gradient px-3 py-2 rounded-pill fw-bold fs-6">
+                  <i class="fa-solid fa-address-card me-2"></i> تفاصيل وبيانات الطالب
                 </span>
               </div>
 
-              <!-- Student Information Grid -->
+              <!-- Primary Student Data Grid -->
               <div class="row g-3">
                 
                 <!-- National ID -->
-                <div class="col-md-6">
+                <div class="col-md-6 col-12">
                   <div class="info-field-card">
                     <span class="info-field-label"><i class="fa-solid fa-id-badge text-cyan me-2"></i>الرقم القومي:</span>
-                    <span class="info-field-value text-info font-monospace fs-5" id="resNationalId">--</span>
+                    <span class="info-field-value text-info font-monospace fs-5 fw-bold" id="resNationalId">--</span>
                   </div>
                 </div>
 
                 <!-- Name -->
-                <div class="col-md-6">
+                <div class="col-md-6 col-12">
                   <div class="info-field-card">
                     <span class="info-field-label"><i class="fa-solid fa-user text-cyan me-2"></i>الاسم:</span>
                     <span class="info-field-value text-white fw-bold fs-5" id="resStudentName">--</span>
@@ -210,38 +207,97 @@
                 </div>
 
                 <!-- Code -->
-                <div class="col-md-6">
+                <div class="col-md-6 col-12">
                   <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-key text-cyan me-2"></i>الكود:</span>
+                    <span class="info-field-label"><i class="fa-solid fa-key text-cyan me-2"></i>الكود الأكاديمي:</span>
                     <span class="info-field-value text-cyan font-monospace fw-bold fs-5" id="resCode">--</span>
                   </div>
                 </div>
 
                 <!-- Faculty (الكلية) -->
-                <div class="col-md-6">
+                <div class="col-md-6 col-12">
                   <div class="info-field-card">
                     <span class="info-field-label"><i class="fa-solid fa-graduation-cap text-cyan me-2"></i>الكلية:</span>
-                    <span class="info-field-value text-warning fw-bold" id="resGrade">--</span>
-                  </div>
-                </div>
-
-                <!-- Day -->
-                <div class="col-md-6">
-                  <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-calendar-day text-cyan me-2"></i>اليوم:</span>
-                    <span class="info-field-value text-success fw-bold" id="resDay">--</span>
-                  </div>
-                </div>
-
-                <!-- Location -->
-                <div class="col-md-6">
-                  <div class="info-field-card">
-                    <span class="info-field-label"><i class="fa-solid fa-location-dot text-danger me-2"></i>المكان:</span>
-                    <span class="info-field-value text-white fw-bold" id="resLocation">--</span>
+                    <span class="info-field-value text-warning fw-bold fs-5" id="resGrade">--</span>
                   </div>
                 </div>
 
               </div>
+            </div>
+
+            <!-- ================= UNIFIED ANIMATED FRAME: موعد ويوم الحضور وأماكن الاستلام والكشف الطبي ================= -->
+            <div class="unified-schedule-locations-frame p-3 p-md-4 rounded-4 mt-4 position-relative">
+              
+              <!-- Frame Header -->
+              <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-secondary-subtle flex-wrap gap-2">
+                <h5 class="text-white fw-bold mb-0 d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-calendar-check text-gradient-cyan fs-5"></i>
+                  <span>موعد وأماكن الحضور واستلام الكارنيه والكشف الطبي:</span>
+                </h5>
+              </div>
+
+              <!-- موعد ويوم الحضور -->
+              <div class="date-highlight-card mb-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="date-icon-box-sm">
+                    <i class="fa-solid fa-calendar-day text-success"></i>
+                  </div>
+                  <span class="info-field-label text-success-light fw-bold">
+                    موعد ويوم الحضور:
+                  </span>
+                </div>
+                <span class="date-value-badge" id="resDay">--</span>
+              </div>
+
+              <!-- أماكن استلام الكارنيه والكشف الطبي -->
+              <div class="row g-3">
+                
+                <!-- Card 1: مكان استلام الكارنيه (Animated Hero Card) -->
+                <div class="col-md-6 col-12">
+                  <div class="hero-location-card location-card-pickup position-relative overflow-hidden h-100">
+                    <div class="location-card-glow-bg"></div>
+                    <div class="location-card-content position-relative p-3 p-md-4">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="location-type-pill pickup-pill">
+                          <i class="fa-solid fa-id-card-clip me-2 bounce-subtle"></i> مكان استلام الكارنيه
+                        </span>
+                        <div class="location-beacon beacon-pickup" title="الموقع محدد">
+                          <span class="beacon-pulse"></span>
+                          <span class="beacon-circle"></span>
+                        </div>
+                      </div>
+                      
+                      <div class="location-title-wrap my-3">
+                        <div class="location-main-text text-white" id="resLocation">--</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2: مكان الكشف الطبي (Animated Hero Card) -->
+                <div class="col-md-6 col-12">
+                  <div class="hero-location-card location-card-medical position-relative overflow-hidden h-100">
+                    <div class="location-card-glow-bg"></div>
+                    <div class="location-card-content position-relative p-3 p-md-4">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="location-type-pill medical-pill">
+                          <i class="fa-solid fa-stethoscope me-2 heartbeat-icon"></i> مكان الكشف الطبي
+                        </span>
+                        <div class="location-beacon beacon-medical" title="الموقع الطبي جاهز">
+                          <span class="beacon-pulse"></span>
+                          <span class="beacon-circle"></span>
+                        </div>
+                      </div>
+                      
+                      <div class="location-title-wrap my-3">
+                        <div class="location-main-text text-emerald-glow" id="resMedicalLocation">--</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
 
             <!-- Action Button (استعلام آخر فقط باللون الأبيض بولد) -->
@@ -263,7 +319,7 @@
             <i class="fa-solid fa-triangle-exclamation fs-1 mb-3 text-warning"></i>
             <h4 class="fw-bold mb-2">عفواً، لم يتم العثور على بيانات لهذا الرقم القومي</h4>
             <p class="mb-3 text-secondary">
-              تأكد من إدخال الـ 14 رقماً باللغة الإنجليزية أو العربية بشكل صحيح، أو راجع إدارة شؤون الطلاب بجامعة اللوتس.
+              تأكد من إدخال الـ 14 رقماً باللغة الإنجليزية أو العربية بشكل صحيح، أو مراجعة إدارة الجامعة.
             </p>
             <button class="btn btn-outline-warning rounded-pill px-4" onclick="resetSearch()">
               <i class="fa-solid fa-keyboard me-1"></i> المحاولة مجدداً
@@ -281,7 +337,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle flex-wrap gap-3">
         <div>
           <h2 class="fw-bold text-white mb-1">
-            <i class="fa-solid fa-user-shield text-cyan me-2"></i> لوحة الإدارة وشؤون الطلاب
+            <i class="fa-solid fa-user-shield text-cyan me-2"></i> لوحة الإدارة
           </h2>
           <small class="text-secondary">رفع ملفات الإكسيل ومزامنة بيانات الطلاب فورياً مع Firebase</small>
         </div>
@@ -341,12 +397,19 @@
         <!-- Upload Section -->
         <div class="col-lg-8">
           <div class="cyber-card p-4 h-100">
-            <h4 class="text-white fw-bold mb-3 d-flex align-items-center justify-content-between">
-              <span><i class="fa-solid fa-file-excel text-success me-2"></i> رفع ملف بيانات الطلاب (Excel .xlsx / .xls)</span>
-              <a href="#" class="btn btn-sm btn-outline-info rounded-pill" onclick="downloadExcelTemplate()">
-                <i class="fa-solid fa-download me-1"></i> تحميل نموذج إكسيل تجريبي
-              </a>
-            </h4>
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+              <h4 class="text-white fw-bold mb-0">
+                <i class="fa-solid fa-file-excel text-success me-2"></i> رفع ملف بيانات الطلاب (Excel .xlsx / .xls)
+              </h4>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-outline-success rounded-pill" onclick="downloadEmptyExcelTemplate()" title="تحميل ملف إكسيل فارغ بالأعمدة فقط للكتابة فيه">
+                  <i class="fa-solid fa-file-circle-plus me-1"></i> تحميل قالب إكسيل فارغ
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-info rounded-pill" onclick="downloadExcelTemplate()" title="تحميل نموذج تجريبي يحتوي على بيانات للتوضيح">
+                  <i class="fa-solid fa-download me-1"></i> تحميل نموذج تجريبي
+                </button>
+              </div>
+            </div>
 
             <!-- Drag & Drop Zone -->
             <div class="excel-drop-zone p-4 text-center rounded-3 mb-3" id="dropZone">
@@ -409,8 +472,12 @@
                   <select id="mapColDay" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
                 </div>
                 <div class="col-md-4 col-sm-6">
-                  <label class="form-label text-danger small mb-1 fw-bold"><i class="fa-solid fa-location-dot me-1"></i> عمود المكان:</label>
+                  <label class="form-label text-danger small mb-1 fw-bold"><i class="fa-solid fa-id-card-clip me-1"></i> مكان استلام الكارنيه:</label>
                   <select id="mapColLocation" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label text-info small mb-1 fw-bold"><i class="fa-solid fa-stethoscope me-1"></i> مكان الكشف الطبي:</label>
+                  <select id="mapColMedicalLocation" class="form-select form-select-sm cyber-select" onchange="reparseWithCustomColumns()"></select>
                 </div>
               </div>
 
@@ -435,7 +502,7 @@
             <div class="small text-secondary">
               <i class="fa-solid fa-circle-info text-cyan me-1"></i>
               <strong>الأعمدة المعتمدة في ملف الإكسيل:</strong> 
-              الرقم القومي - الاسم - الكود - الكلية - اليوم - المكان.
+              الرقم القومي - الاسم - الكود - الكلية - اليوم - مكان استلام الكارنيه - مكان الكشف الطبي.
               (يتعرف النظام على أسماء الأعمدة وترتيبها تلقائياً).
             </div>
 
@@ -518,13 +585,14 @@
                 <th scope="col">الكود المقسم</th>
                 <th scope="col">الكلية</th>
                 <th scope="col">اليوم</th>
-                <th scope="col">المكان</th>
+                <th scope="col">مكان استلام الكارنيه</th>
+                <th scope="col">مكان الكشف الطبي</th>
                 <th scope="col" class="text-center">إجراءات</th>
               </tr>
             </thead>
             <tbody id="studentsTableBody">
               <tr>
-                <td colspan="9" class="text-center py-4 text-secondary">
+                <td colspan="10" class="text-center py-4 text-secondary">
                   <i class="fa-solid fa-inbox fs-3 d-block mb-2 text-muted"></i>
                   لا توجد بيانات حالياً. قم برفع ملف إكسيل لبدء ملء السجلات.
                 </td>
@@ -562,7 +630,7 @@
         </div>
         <div class="modal-body p-4">
           <p class="text-secondary small mb-3">
-            هذه المنطقة مخصصة لإدارة شؤون الطلاب فقط لرفع وتعديل بيانات إكسيل. برجاء إدخال الرقم السري.
+            هذه المنطقة مخصصة للإدارة فقط لرفع وتعديل بيانات إكسيل. برجاء إدخال الرقم السري.
           </p>
           <form id="adminLoginForm" onsubmit="event.preventDefault(); verifyAdminPin();">
             <div class="mb-3">

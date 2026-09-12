@@ -254,20 +254,22 @@ async function searchStudent() {
  * عرض بيانات الطالب في الكارت المخصص
  */
 function displayStudentDetails(student) {
-  // الحقول الأساسية: الرقم القومي - الاسم - الكود - الكلية - اليوم - المكان
+  // الحقول الأساسية: الرقم القومي - الاسم - الكود - الكلية - اليوم - مكان استلام الكارنيه - مكان الكشف الطبي
   const nationalIdEl = document.getElementById("resNationalId");
   const nameEl = document.getElementById("resStudentName");
   const codeEl = document.getElementById("resCode");
   const facultyEl = document.getElementById("resFaculty") || document.getElementById("resGrade");
   const dayEl = document.getElementById("resDay");
   const locationEl = document.getElementById("resLocation");
+  const medicalLocationEl = document.getElementById("resMedicalLocation");
 
   if (nationalIdEl) nationalIdEl.textContent = student.nationalId || '--';
   if (nameEl) nameEl.textContent = student.name || 'غير مدون';
   if (codeEl) codeEl.textContent = student.code || '--';
   if (facultyEl) facultyEl.textContent = student.faculty || student.grade || 'غير مدون';
   if (dayEl) dayEl.textContent = student.day || 'غير محدد';
-  if (locationEl) locationEl.textContent = student.location || 'شؤون الطلاب';
+  if (locationEl) locationEl.textContent = student.location || student['مكان استلام الكارنيه'] || 'شؤون الطلاب';
+  if (medicalLocationEl) medicalLocationEl.textContent = student.medicalLocation || student.medical_location || student['مكان الكشف الطبي'] || 'العيادات الطبية';
 
   // معالجة وتقسيم الكود
   const rawCode = String(student.code || '').trim();
@@ -380,7 +382,8 @@ function copyAllDetails() {
 الكود: ${s.code}
 الكلية: ${s.faculty || s.grade || ''}
 اليوم: ${s.day}
-المكان: ${s.location}
+مكان استلام الكارنيه: ${s.location || ''}
+مكان الكشف الطبي: ${s.medicalLocation || s.medical_location || ''}
 إشراف: م/ بولس سمير - مدير شئون الطلاب`;
 
   navigator.clipboard.writeText(text).then(() => {

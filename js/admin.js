@@ -31,7 +31,7 @@ function verifyAdminPin() {
 
     // التبديل لشاشة الإدارة
     switchToAdminView();
-    showToast("مرحباً بك", "تم تسجيل الدخول للوحة إدارة شؤون الطلاب بنجاح", "success");
+    showToast("مرحباً بك", "تم تسجيل الدخول للوحة الإدارة بنجاح", "success");
   } else {
     errorMsg.classList.remove("d-none");
     pinInput.focus();
@@ -240,7 +240,8 @@ function setupColumnMappingSelects(columns, rows) {
     { id: "mapColCode", type: "code", defaultIndex: 2 },
     { id: "mapColFaculty", type: "faculty", defaultIndex: 3 },
     { id: "mapColDay", type: "day", defaultIndex: 4 },
-    { id: "mapColLocation", type: "location", defaultIndex: 5 }
+    { id: "mapColLocation", type: "location", defaultIndex: 5 },
+    { id: "mapColMedicalLocation", type: "medicalLocation", defaultIndex: 6 }
   ];
 
   fields.forEach(field => {
@@ -295,7 +296,11 @@ function setupColumnMappingSelects(columns, rows) {
           bestMatch = col;
         }
       } else if (field.type === 'location') {
-        if (!bestMatch && (cleanCol.includes('مكان') || cleanCol.includes('قاع') || cleanCol.includes('مدرج') || cleanCol.includes('مبني') || cleanCol.includes('location') || cleanCol.includes('hall'))) {
+        if (!bestMatch && (cleanCol.includes('كارنيه') || (cleanCol.includes('استلام') && !cleanCol.includes('كشف')) || (cleanCol.includes('مكان') && !cleanCol.includes('كشف') && !cleanCol.includes('طبي')) || cleanCol.includes('قاع') || cleanCol.includes('مدرج') || cleanCol.includes('مبني') || cleanCol.includes('location') || cleanCol.includes('hall'))) {
+          bestMatch = col;
+        }
+      } else if (field.type === 'medicalLocation') {
+        if (!bestMatch && (cleanCol.includes('كشف') || cleanCol.includes('طبي') || cleanCol.includes('عياد') || cleanCol.includes('medical') || cleanCol.includes('clinic') || cleanCol.includes('فحص'))) {
           bestMatch = col;
         }
       }
@@ -324,6 +329,7 @@ function reparseWithCustomColumns() {
   const colCode = document.getElementById("mapColCode") ? document.getElementById("mapColCode").value : '';
   const colDay = document.getElementById("mapColDay") ? document.getElementById("mapColDay").value : '';
   const colLocation = document.getElementById("mapColLocation") ? document.getElementById("mapColLocation").value : '';
+  const colMedicalLocation = document.getElementById("mapColMedicalLocation") ? document.getElementById("mapColMedicalLocation").value : '';
 
   const mappedList = [];
 
@@ -334,6 +340,7 @@ function reparseWithCustomColumns() {
     let faculty = '';
     let day = '';
     let location = '';
+    let medicalLocation = '';
 
     // 1. استخراج الحقول إذا تم تحديد عمود محدد بالاسم
     if (colNationalId && row[colNationalId] !== undefined) {
@@ -354,6 +361,9 @@ function reparseWithCustomColumns() {
     if (colLocation && row[colLocation] !== undefined) {
       location = String(row[colLocation]).trim();
     }
+    if (colMedicalLocation && row[colMedicalLocation] !== undefined) {
+      medicalLocation = String(row[colMedicalLocation]).trim();
+    }
 
     // 2. الكشف التلقائي الذكي للحقول غير المحددة
     const rowKeys = Object.keys(row);
@@ -372,12 +382,14 @@ function reparseWithCustomColumns() {
         faculty = val;
       } else if (!day && (cleanKey.includes('يوم') || cleanKey.includes('day') || cleanKey.includes('تاريخ') || cleanKey.includes('date'))) {
         day = val;
-      } else if (!location && (cleanKey.includes('مكان') || cleanKey.includes('قاع') || cleanKey.includes('مدرج') || cleanKey.includes('مبني') || cleanKey.includes('location') || cleanKey.includes('hall'))) {
+      } else if (!medicalLocation && (cleanKey.includes('كشف') || cleanKey.includes('طبي') || cleanKey.includes('عياد') || cleanKey.includes('medical') || cleanKey.includes('clinic') || cleanKey.includes('فحص'))) {
+        medicalLocation = val;
+      } else if (!location && (cleanKey.includes('كارنيه') || (cleanKey.includes('استلام') && !cleanKey.includes('كشف')) || (cleanKey.includes('مكان') && !cleanKey.includes('كشف') && !cleanKey.includes('طبي')) || cleanKey.includes('قاع') || cleanKey.includes('مدرج') || cleanKey.includes('مبني') || cleanKey.includes('location') || cleanKey.includes('hall'))) {
         location = val;
       }
     }
 
-    // 3. دعم الترتيب الافتراضي للأعمدة (1: الرقم القومي، 2: الاسم، 3: الكود، 4: الكلية، 5: اليوم، 6: المكان)
+    // 3. دعم الترتيب الافتراضي للأعمدة (1: الرقم القومي، 2: الاسم، 3: الكود، 4: الكلية، 5: اليوم، 6: مكان استلام الكارنيه، 7: مكان الكشف الطبي)
     if (!nationalId && rowKeys[0] && row[rowKeys[0]] !== undefined) {
       const val0 = normalizeArabicNumbers(String(row[rowKeys[0]])).replace(/\D/g, '');
       if (val0.length >= 6) nationalId = val0;
@@ -397,6 +409,9 @@ function reparseWithCustomColumns() {
     if (!location && rowKeys[5] && row[rowKeys[5]] !== undefined) {
       location = String(row[rowKeys[5]]).trim();
     }
+    if (!medicalLocation && rowKeys[6] && row[rowKeys[6]] !== undefined) {
+      medicalLocation = String(row[rowKeys[6]]).trim();
+    }
 
     // إذا لم يكن هناك عمود كود مخصص، نولد كوداً تسلسلياً بناء على الترتيب
     if (!code && nationalId) {
@@ -411,7 +426,8 @@ function reparseWithCustomColumns() {
         faculty: faculty || 'جامعة اللوتس',
         grade: faculty || 'جامعة اللوتس', // للحفاظ على التوافق الكامل مع كافة السجلات
         day: day || 'الأحد',
-        location: location || 'إدارة شؤون الطلاب'
+        location: location || 'مقر استلام الكارنيه',
+        medicalLocation: medicalLocation || 'العيادات الطبية'
       });
     }
   });
@@ -449,7 +465,8 @@ function updateExcelSamplePreview() {
       <div><span class="text-secondary small">الكود:</span> <span class="text-cyan font-monospace">${sample.code}</span></div>
       <div><span class="text-secondary small">الكلية:</span> <span class="badge bg-warning text-dark fw-bold px-2 py-1 fs-6">${sample.faculty}</span></div>
       <div><span class="text-secondary small">اليوم:</span> <span class="text-success">${sample.day}</span></div>
-      <div><span class="text-secondary small">المكان:</span> <span class="text-secondary">${sample.location}</span></div>
+      <div><span class="text-secondary small">مكان استلام الكارنيه:</span> <span class="text-white">${sample.location}</span></div>
+      <div><span class="text-secondary small">مكان الكشف الطبي:</span> <span class="text-info">${sample.medicalLocation || '--'}</span></div>
     </div>
   `;
 }
@@ -489,7 +506,8 @@ async function uploadParsedDataToFirebase() {
         faculty: student.faculty,
         grade: student.faculty, // تحديث grade ليكون اسم الكلية حتى تُستبدل أي بيانات سابقة
         day: student.day,
-        location: student.location
+        location: student.location,
+        medicalLocation: student.medicalLocation || ''
       };
     });
 
@@ -549,7 +567,7 @@ function renderAdminTable(dataObj) {
   if (studentsList.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" class="text-center py-4 text-secondary">
+        <td colspan="10" class="text-center py-4 text-secondary">
           <i class="fa-solid fa-inbox fs-3 d-block mb-2 text-muted"></i>
           لا توجد بيانات حالياً في الفيربيس. قم برفع ملف إكسيل لبدء ملء السجلات.
         </td>
@@ -574,6 +592,7 @@ function renderAdminTable(dataObj) {
         <td><span class="badge bg-warning-subtle text-warning fw-bold">${s.faculty || s.grade || 'غير محدد'}</span></td>
         <td><span class="text-success">${s.day}</span></td>
         <td><small class="text-secondary">${s.location}</small></td>
+        <td><small class="text-info">${s.medicalLocation || s.medical_location || '--'}</small></td>
         <td class="text-center">
           <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteSingleStudent('${s.nationalId}')" title="حذف هذا الطالب">
             <i class="fa-solid fa-trash-can"></i>
@@ -655,7 +674,8 @@ function exportCurrentTableToExcel() {
     "الكود": s.code,
     "الكلية": s.faculty || s.grade || '',
     "اليوم": s.day,
-    "المكان": s.location
+    "مكان استلام الكارنيه": s.location,
+    "مكان الكشف الطبي": s.medicalLocation || s.medical_location || ''
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -664,6 +684,42 @@ function exportCurrentTableToExcel() {
 
   XLSX.writeFile(workbook, "طلاب_جامعة_اللوتس_شؤون_الطلاب.xlsx");
   showToast("تم التصدير", "تم تصدير ملف الإكسيل بنجاح!", "success");
+}
+
+/**
+ * تحميل نموذج إكسيل فارغ بالأعمدة فقط للكتابة فيه ورفعه مباشرة
+ */
+function downloadEmptyExcelTemplate() {
+  const emptyHeaders = [
+    {
+      "الرقم القومي": "",
+      "الاسم": "",
+      "الكود": "",
+      "الكلية": "",
+      "اليوم": "",
+      "مكان استلام الكارنيه": "",
+      "مكان الكشف الطبي": ""
+    }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(emptyHeaders);
+
+  // ضبط عرض الأعمدة لتكون مريحة عند فتحها في Excel
+  worksheet['!cols'] = [
+    { wch: 18 }, // الرقم القومي
+    { wch: 28 }, // الاسم
+    { wch: 16 }, // الكود
+    { wch: 25 }, // الكلية
+    { wch: 18 }, // اليوم
+    { wch: 30 }, // مكان استلام الكارنيه
+    { wch: 35 }  // مكان الكشف الطبي
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "بيانات الطلاب");
+
+  XLSX.writeFile(workbook, "قالب_فارغ_بيانات_الطلاب_جامعة_اللوتس.xlsx");
+  showToast("تحميل القالب الفارغ", "تم تنزيل قالب الإكسيل الفارغ بنجاح. يمكنك الآن كتابة البيانات ورفعه مباشرة!", "success");
 }
 
 /**
@@ -677,7 +733,8 @@ function downloadExcelTemplate() {
       "الكود": "LUM-2024-8140",
       "الكلية": "كلية الهندسة",
       "اليوم": "الأحد 15 أكتوبر",
-      "المكان": "مبنى كليات الهندسة - صالة أ"
+      "مكان استلام الكارنيه": "مبنى كليات الهندسة - صالة أ",
+      "مكان الكشف الطبي": "الإدارة الطبية - عيادة الباطنة (مبنى ج)"
     },
     {
       "الرقم القومي": "30205122405678",
@@ -685,7 +742,8 @@ function downloadExcelTemplate() {
       "الكود": "LUM-2024-8141",
       "الكلية": "كلية الصيدلة",
       "اليوم": "الإثنين 16 أكتوبر",
-      "المكان": "مبنى الإدارة - شؤون الطلاب"
+      "مكان استلام الكارنيه": "مبنى الإدارة - شؤون الطلاب",
+      "مكان الكشف الطبي": "الإدارة الطبية - عيادة الرمد والأسنان"
     },
     {
       "الرقم القومي": "30108202409988",
@@ -693,11 +751,24 @@ function downloadExcelTemplate() {
       "الكود": "LUM-2024-8142",
       "الكلية": "كلية الحاسبات والذكاء الاصطناعي",
       "اليوم": "الثلاثاء 17 أكتوبر",
-      "المكان": "مدرج 3 - الدور الأرضي"
+      "مكان استلام الكارنيه": "مدرج 3 - الدور الأرضي",
+      "مكان الكشف الطبي": "الإدارة الطبية - العيادة الشاملة"
     }
   ];
 
   const worksheet = XLSX.utils.json_to_sheet(sampleData);
+
+  // ضبط عرض الأعمدة
+  worksheet['!cols'] = [
+    { wch: 18 },
+    { wch: 28 },
+    { wch: 16 },
+    { wch: 25 },
+    { wch: 18 },
+    { wch: 30 },
+    { wch: 35 }
+  ];
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "نموذج_الطلاب");
 
@@ -753,3 +824,5 @@ function updateSplitSettings() {
 window.updateSplitSettings = updateSplitSettings;
 window.renderAdminTable = renderAdminTable;
 window.reparseWithCustomColumns = reparseWithCustomColumns;
+window.downloadExcelTemplate = downloadExcelTemplate;
+window.downloadEmptyExcelTemplate = downloadEmptyExcelTemplate;
